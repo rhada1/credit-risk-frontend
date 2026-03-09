@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Credit Risk Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080c14;
+      --surface:   #0e1520;
+      --border:    #1a2540;
+      --accent:    #00e5ff;
+      --accent2:   #7c4dff;
+      --green:     #00e676;
+      --red:       #ff1744;
+      --text:      #e8eaf6;
+      --muted:     #546e8a;
+      --font-head: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #root { position: relative; z-index: 1; }
+
+    /* ── Header ── */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(10px);
+      background: rgba(8,12,20,.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-logo {
+      font-family: var(--font-head);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .header-logo span { color: var(--accent); }
+    .header-badge {
+      font-size: 11px;
+      padding: 4px 12px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 100px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── Layout ── */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      .header { padding: 16px 24px; }
+    }
+
+    /* ── Hero ── */
+    .hero {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px 0 32px;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 16px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--accent);
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: .4;
+    }
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* ── Form ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .form-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+      width: 100%;
+    }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,229,255,.1);
+    }
+    select.form-input option { background: var(--surface); }
+
+    /* ── Button ── */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 24px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-head);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,229,255,.3);
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn.loading { position: relative; color: transparent; }
+    .btn.loading::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: 20px; height: 20px;
+      border: 2px solid var(--bg);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    /* ── Result ── */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .result-verdict {
+      text-align: center;
+      padding: 32px;
+      border-radius: 12px;
+      border: 1px solid;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-verdict.approved {
+      border-color: var(--green);
+      background: rgba(0,230,118,.05);
+    }
+    .result-verdict.rejected {
+      border-color: var(--red);
+      background: rgba(255,23,68,.05);
+    }
+    .verdict-icon { font-size: 48px; margin-bottom: 8px; }
+    .verdict-label {
+      font-family: var(--font-head);
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .verdict-label.approved { color: var(--green); }
+    .verdict-label.rejected { color: var(--red); }
+    .verdict-prob {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Gauge ── */
+    .gauge-wrap { text-align: center; }
+    .gauge-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .gauge-bar-bg {
+      height: 8px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .gauge-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 1s cubic-bezier(.4,0,.2,1);
+    }
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red   { color: var(--red); }
+    .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 300px;
+      gap: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .empty-icon { font-size: 48px; opacity: .3; }
+    .empty-text { font-size: 13px; line-height: 1.6; }
+
+    /* ── History chart ── */
+    .history-card {
+      grid-column: 1 / -1;
+    }
+    .chart-wrap { width: 100%; height: 200px; }
+
+    /* ── API status ── */
+    .api-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .dot.online  { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+    .dot.offline { background: var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeIn .4s ease forwards; }
+
+    .error-msg {
+      background: rgba(255,23,68,.1);
+      border: 1px solid var(--red);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } = Recharts;
+
+const API_URL = "https://credit-risk-n0p5.onrender.com";
+
+const FIELDS = [
+  { key: "no_of_dependents",         label: "Dependents",              type: "number", min: 0, max: 5,   placeholder: "0–5" },
+  { key: "cibil_score",              label: "CIBIL Score",             type: "number", min: 300, max: 900, placeholder: "300–900" },
+  { key: "income_annum",             label: "Annual Income (₹)",       type: "number", min: 1,  placeholder: "e.g. 9600000" },
+  { key: "loan_amount",              label: "Loan Amount (₹)",         type: "number", min: 1,  placeholder: "e.g. 29900000" },
+  { key: "loan_term",                label: "Loan Term (years)",       type: "number", min: 2,  max: 20, placeholder: "2–20" },
+  { key: "residential_assets_value", label: "Residential Assets (₹)",  type: "number", placeholder: "e.g. 2400000" },
+  { key: "commercial_assets_value",  label: "Commercial Assets (₹)",   type: "number", placeholder: "e.g. 17600000" },
+  { key: "luxury_assets_value",      label: "Luxury Assets (₹)",       type: "number", placeholder: "e.g. 22700000" },
+  { key: "bank_asset_value",         label: "Bank Assets (₹)",         type: "number", placeholder: "e.g. 8000000" },
+];
+
+const DEFAULT_VALUES = {
+  no_of_dependents: 2, education: 0, self_employed: 0,
+  income_annum: 9600000, loan_amount: 29900000, loan_term: 12,
+  cibil_score: 778, residential_assets_value: 2400000,
+  commercial_assets_value: 17600000, luxury_assets_value: 22700000,
+  bank_asset_value: 8000000,
+};
+
+function App() {
+  const [form, setForm]         = useState(DEFAULT_VALUES);
+  const [result, setResult]     = useState(null);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState(null);
+  const [apiOnline, setApiOnline] = useState(null);
+  const [history, setHistory]   = useState([]);
+
+  // Health check
+  useEffect(() => {
+    fetch(`${API_URL}/health`)
+      .then(r => r.ok ? setApiOnline(true) : setApiOnline(false))
+      .catch(() => setApiOnline(false));
+  }, []);
+
+  const handleChange = (key, val) => setForm(f => ({ ...f, [key]: val }));
+
+  const handleSubmit = async () => {
+    setLoading(true); setError(null); setResult(null);
+    const payload = { ...form };
+    Object.keys(payload).forEach(k => {
+      if (k !== "education" && k !== "self_employed")
+        payload[k] = Number(payload[k]);
+    });
+    try {
+      const res = await fetch(`${API_URL}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const data = await res.json();
+      setResult(data);
+      setHistory(h => [...h.slice(-9), {
+        name: `#${h.length + 1}`,
+        approved: Math.round(data.prob_approved * 100),
+        rejected: Math.round(data.prob_rejected * 100),
+        verdict: data.prediction,
+      }]);
+    } catch(e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <header className="header">
+        <div className="header-logo">CREDIT<span>RISK</span></div>
+        <div style={{display:'flex',alignItems:'center',gap:16}}>
+          <div className="api-status">
+            <div className={`dot ${apiOnline === null ? '' : apiOnline ? 'online' : 'offline'}`}/>
+            {apiOnline === null ? 'Checking...' : apiOnline ? 'API Online' : 'API Offline'}
+          </div>
+          <div className="header-badge">XGBoost v3</div>
+        </div>
+      </header>
+
+      <div className="main">
+        {/* Hero */}
+        <div className="hero">
+          <div className="hero-tag">ML-Powered Decision System</div>
+          <h1>Loan <em>Approval</em><br/>Prediction</h1>
+          <p>Enter applicant financial data to get an instant AI-powered credit risk assessment using our XGBoost model trained on 4,269 real cases.</p>
+        </div>
+
+        {/* Form */}
+        <div className="card">
+          <div className="card-title">Applicant Profile</div>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+            <div className="form-group">
+              <label className="form-label">Education</label>
+              <select className="form-input" value={form.education}
+                onChange={e => handleChange("education", Number(e.target.value))}>
+                <option value={0}>Graduate</option>
+                <option value={1}>Not Graduate</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Self Employed</label>
+              <select className="form-input" value={form.self_employed}
+                onChange={e => handleChange("self_employed", Number(e.target.value))}>
+                <option value={0}>No</option>
+                <option value={1}>Yes</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-grid">
+            {FIELDS.map(f => (
+              <div className="form-group" key={f.key}>
+                <label className="form-label">{f.label}</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  min={f.min} max={f.max}
+                  placeholder={f.placeholder}
+                  value={form[f.key]}
+                  onChange={e => handleChange(f.key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+
+          <button className={`btn ${loading ? 'loading' : ''}`}
+            onClick={handleSubmit} disabled={loading || apiOnline === false}>
+            {loading ? '' : 'Predict Loan Approval'}
+          </button>
+
+          {error && <div className="error-msg">⚠ {error}</div>}
+          {apiOnline === false && (
+            <div className="error-msg">⚠ API is offline. Please try again later.</div>
+          )}
+        </div>
+
+        {/* Result */}
+        <div className="result-card">
+          <div className="card-title">Prediction Result</div>
+
+          {!result ? (
+            <div className="empty-state">
+              <div className="empty-icon">📊</div>
+              <div className="empty-text">Fill in the applicant's financial<br/>profile and click Predict.</div>
+            </div>
+          ) : (
+            <div className="animate-in">
+              {/* Verdict */}
+              <div className={`result-verdict ${result.prediction.toLowerCase()}`}>
+                <div className="verdict-icon">
+                  {result.prediction === "Approved" ? "✅" : "❌"}
+                </div>
+                <div className={`verdict-label ${result.prediction.toLowerCase()}`}>
+                  {result.prediction}
+                </div>
+                <div className="verdict-prob">
+                  Confidence: {(result.probability * 100).toFixed(1)}%
+                </div>
+              </div>
+
+              {/* Gauge */}
+              <div className="gauge-wrap">
+                <div className="gauge-title">Approval Probability</div>
+                <div className="gauge-bar-bg">
+                  <div className="gauge-bar-fill" style={{
+                    width: `${result.prob_approved * 100}%`,
+                    background: result.prediction === "Approved"
+                      ? `linear-gradient(90deg, #00e676, #69f0ae)`
+                      : `linear-gradient(90deg, #ff1744, #ff6090)`,
+                  }}/>
+                </div>
+                <div className="gauge-labels">
+                  <span>0%</span>
+                  <span style={{color: result.prediction==="Approved"?"#00e676":"#ff1744"}}>
+                    {(result.prob_approved * 100).toFixed(1)}%
+                  </span>
+                  <span>100%</span>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="stats-row">
+                <div className="stat-box">
+                  <div className="stat-value green">{(result.prob_approved * 100).toFixed(1)}%</div>
+                  <div className="stat-label">P(Approved)</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-value red">{(result.prob_rejected * 100).toFixed(1)}%</div>
+                  <div className="stat-label">P(Rejected)</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* History Chart */}
+        {history.length > 0 && (
+          <div className="card history-card animate-in">
+            <div className="card-title">Prediction History</div>
+            <div className="chart-wrap">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={history} barGap={4}>
+                  <XAxis dataKey="name" stroke="#546e8a" tick={{fontSize:11, fontFamily:'DM Mono'}}/>
+                  <YAxis stroke="#546e8a" tick={{fontSize:11, fontFamily:'DM Mono'}} domain={[0,100]} unit="%"/>
+                  <Tooltip
+                    contentStyle={{background:'#0e1520',border:'1px solid #1a2540',borderRadius:8,fontFamily:'DM Mono',fontSize:12}}
+                    labelStyle={{color:'#e8eaf6'}}
+                    formatter={(v, n) => [`${v}%`, n]}
+                  />
+                  <Bar dataKey="approved" name="Approved" radius={[4,4,0,0]}>
+                    {history.map((h, i) => (
+                      <Cell key={i} fill={h.verdict==="Approved" ? "#00e676" : "#546e8a"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

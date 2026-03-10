@@ -6,126 +6,155 @@
   <title>Credit Risk Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#080c14;--surface:#0e1520;--border:#1a2540;--accent:#00e5ff;--green:#00e676;--red:#ff1744;--text:#e8eaf6;--muted:#546e8a}
-    body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh}
-    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03)1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-    header{border-bottom:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(8,12,20,.9);position:sticky;top:0;z-index:100}
-    .logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}.logo span{color:var(--accent)}
-    .badge{font-size:11px;padding:4px 12px;border:1px solid var(--accent);color:var(--accent);border-radius:100px;letter-spacing:2px}
-    .status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
-    .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-    .dot.online{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
-    .dot.offline{background:var(--red)}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .container{max-width:1200px;margin:0 auto;padding:40px 24px}
-    .hero{text-align:center;padding:40px 0}
-    .hero-tag{font-size:11px;letter-spacing:3px;color:var(--accent);margin-bottom:12px}
-    .hero h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,54px);font-weight:800;letter-spacing:-2px;margin-bottom:12px}
-    .hero h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px var(--accent)}
-    .hero p{color:var(--muted);font-size:13px;max-width:480px;margin:0 auto;line-height:1.7}
-    /* TABS */
-    .tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px;margin-bottom:28px;max-width:540px;margin-left:auto;margin-right:auto}
-    .tab{flex:1;text-align:center;padding:10px 14px;border-radius:10px;cursor:pointer;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);transition:all .2s;user-select:none}
-    .tab.active{background:var(--accent);color:#080c14}
-    .tab:hover:not(.active){color:var(--text);background:var(--border)}
-    .panel{display:none}.panel.active{display:block}
-    /* GRID & CARDS */
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-    @media(max-width:860px){.grid{grid-template-columns:1fr}}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;overflow:hidden}
-    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4}
-    .card-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px}
-    .card-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
-    /* FORM */
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-    .form-group.full{grid-column:1/-1}
-    label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
-    input,select{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
-    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.1)}
-    select option{background:var(--surface)}
-    /* BUTTONS */
-    .btn{width:100%;padding:14px;margin-top:8px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:transform .15s,box-shadow .15s}
-    .btn-primary{background:var(--accent);color:#080c14}
-    .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,229,255,.3)}
-    .btn-secondary{background:transparent;color:var(--accent);border:1px solid var(--accent);margin-top:8px}
-    .btn-secondary:hover:not(:disabled){background:rgba(0,229,255,.08)}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
-    /* SINGLE RESULT */
-    .result-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:12px;color:var(--muted);text-align:center}
-    .result-empty .icon{font-size:48px;opacity:.3}
-    .verdict{text-align:center;padding:28px;border-radius:12px;border:1px solid;margin-bottom:20px}
-    .verdict.approved{border-color:var(--green);background:rgba(0,230,118,.06)}
-    .verdict.rejected{border-color:var(--red);background:rgba(255,23,68,.06)}
-    .verdict-icon{font-size:44px;margin-bottom:6px}
-    .verdict-text{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-1px}
-    .verdict-text.approved{color:var(--green)}.verdict-text.rejected{color:var(--red)}
-    .verdict-conf{font-size:12px;color:var(--muted);margin-top:4px}
-    .gauge{margin-bottom:20px}
-    .gauge-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-    .gauge-track{height:8px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:6px}
-    .gauge-fill{height:100%;border-radius:100px;transition:width 1s cubic-bezier(.4,0,.2,1)}
-    .gauge-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
-    .stats-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-    .stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
-    .stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:700}
-    .stat-val.green{color:var(--green)}.stat-val.red{color:var(--red)}
-    .stat-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
-    .history{margin-top:24px}
-    .history-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-    .history-bars{display:flex;gap:6px;align-items:flex-end;height:80px}
-    .h-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
-    .h-bar{width:100%;border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.4,0,.2,1);min-height:4px}
-    .h-bar.approved{background:var(--green)}.h-bar.rejected{background:var(--red)}
-    .h-label{font-size:9px;color:var(--muted)}
-    /* BATCH MANUAL */
-    .client-row{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
-    .client-row-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:'Syne',sans-serif;font-size:12px;color:var(--accent);font-weight:700;letter-spacing:1px}
-    .btn-remove{background:none;border:1px solid var(--border);color:var(--red);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;transition:background .2s;width:auto;margin-top:0}
-    .btn-remove:hover{background:rgba(255,23,68,.1)}
-    .btn-add{width:100%;padding:12px;background:transparent;border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-bottom:14px}
-    .btn-add:hover{border-color:var(--accent);color:var(--accent)}
-    /* CSV */
-    .csv-drop{border:2px dashed var(--border);border-radius:14px;padding:50px 24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
-    .csv-drop:hover,.csv-drop.dragover{border-color:var(--accent);background:rgba(0,229,255,.04)}
-    .csv-drop .drop-icon{font-size:40px;margin-bottom:12px}
-    .csv-drop .drop-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
-    .csv-drop .drop-sub{font-size:11px;color:var(--muted);line-height:1.6}
-    #csvFileInput{display:none}
-    .csv-info{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;color:var(--muted)}
-    .csv-info strong{color:var(--accent)}
-    /* BATCH RESULTS */
-    .batch-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
-    .summary-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
-    .summary-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800}
-    .summary-val.total{color:var(--accent)}.summary-val.approved{color:var(--green)}.summary-val.rejected{color:var(--red)}
-    .summary-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
-    .batch-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);max-height:340px;overflow-y:auto}
-    table{width:100%;border-collapse:collapse;font-size:12px}
-    thead tr{background:var(--surface);position:sticky;top:0}
-    th{padding:12px 14px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
-    td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text)}
-    tr:last-child td{border-bottom:none}
-    tr:hover td{background:rgba(255,255,255,.02)}
-    .badge-ok{background:rgba(0,230,118,.15);color:var(--green);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
-    .badge-ko{background:rgba(255,23,68,.15);color:var(--red);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
-    .btn-dl{background:transparent;border:1px solid var(--green);color:var(--green);border-radius:10px;padding:10px 20px;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;transition:background .2s;margin-top:16px;width:auto}
-    .btn-dl:hover{background:rgba(0,230,118,.1)}
-    /* MISC */
-    .error{background:rgba(255,23,68,.1);border:1px solid var(--red);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-top:10px}
-    .info-box{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:12px 16px;font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6}
-    .info-box strong{color:var(--accent)}
-    .scrollable{max-height:68vh;overflow-y:auto;padding-right:4px}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    .animate{animation:fadeUp .4s ease}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080c14; --surface: #0e1520; --border: #1a2540;
+      --accent: #00e5ff; --green: #00e676; --red: #ff1744;
+      --text: #e8eaf6; --muted: #546e8a;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Mono', monospace; min-height: 100vh;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none;
+    }
+    header {
+      border-bottom: 1px solid var(--border); padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(8,12,20,.9); position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+    .logo span { color: var(--accent); }
+    .badge {
+      font-size: 11px; padding: 4px 12px; border: 1px solid var(--accent);
+      color: var(--accent); border-radius: 100px; letter-spacing: 2px;
+    }
+    .status { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+    .dot.offline { background: var(--red); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    .hero { text-align: center; padding: 40px 0 48px; }
+    .hero-tag { font-size: 11px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(32px,6vw,64px); font-weight: 800; letter-spacing: -2px; margin-bottom: 12px; }
+    .hero h1 em { font-style: normal; color: transparent; -webkit-text-stroke: 1.5px var(--accent); }
+    .hero p { color: var(--muted); font-size: 13px; max-width: 460px; margin: 0 auto; line-height: 1.7; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media(max-width:800px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .4;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-title::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 8px var(--accent);
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .form-group.full { grid-column: 1/-1; }
+    label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    input, select {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; color: var(--text); font-family: 'DM Mono', monospace;
+      font-size: 13px; outline: none; transition: border-color .2s, box-shadow .2s; width: 100%;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,.1);
+    }
+    select option { background: var(--surface); }
+
+    button {
+      width: 100%; padding: 14px; margin-top: 8px;
+      background: var(--accent); color: #080c14; border: none; border-radius: 10px;
+      font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+    }
+    button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,229,255,.3); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .result-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 300px; gap: 12px;
+      color: var(--muted); text-align: center;
+    }
+    .result-empty .icon { font-size: 48px; opacity: .3; }
+
+    .verdict {
+      text-align: center; padding: 28px; border-radius: 12px;
+      border: 1px solid; margin-bottom: 20px;
+    }
+    .verdict.approved { border-color: var(--green); background: rgba(0,230,118,.06); }
+    .verdict.rejected { border-color: var(--red);   background: rgba(255,23,68,.06); }
+    .verdict-icon { font-size: 44px; margin-bottom: 6px; }
+    .verdict-text {
+      font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -1px;
+    }
+    .verdict-text.approved { color: var(--green); }
+    .verdict-text.rejected { color: var(--red); }
+    .verdict-conf { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .gauge { margin-bottom: 20px; }
+    .gauge-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .gauge-track { height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; margin-bottom: 6px; }
+    .gauge-fill { height: 100%; border-radius: 100px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+    .gauge-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .stat-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; }
+    .stat-val.green { color: var(--green); }
+    .stat-val.red   { color: var(--red); }
+    .stat-lbl { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+    .history { margin-top: 24px; }
+    .history-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .history-bars { display: flex; gap: 6px; align-items: flex-end; height: 80px; }
+    .h-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .h-bar {
+      width: 100%; border-radius: 4px 4px 0 0;
+      transition: height .5s cubic-bezier(.4,0,.2,1);
+      min-height: 4px;
+    }
+    .h-bar.approved { background: var(--green); }
+    .h-bar.rejected { background: var(--red); }
+    .h-label { font-size: 9px; color: var(--muted); }
+
+    .error {
+      background: rgba(255,23,68,.1); border: 1px solid var(--red);
+      border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--red); margin-top: 10px;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .animate { animation: fadeUp .4s ease; }
   </style>
 </head>
 <body>
+
 <header>
   <div class="logo">CREDIT<span>RISK</span></div>
   <div style="display:flex;align-items:center;gap:16px">
-    <div class="status"><div class="dot" id="dot"></div><span id="statusText">Checking...</span></div>
+    <div class="status">
+      <div class="dot" id="dot"></div>
+      <span id="statusText">Checking...</span>
+    </div>
     <div class="badge">XGBoost v3</div>
   </div>
 </header>
@@ -134,290 +163,192 @@
   <div class="hero">
     <div class="hero-tag">ML-Powered Decision System</div>
     <h1>Loan <em>Approval</em><br/>Prediction</h1>
-    <p>Predict one or multiple applicants at once using our XGBoost model trained on 4,269 real loan cases.</p>
+    <p>Enter applicant financial data to get an instant AI-powered credit risk assessment using our XGBoost model trained on 4,269 real cases.</p>
   </div>
 
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('single')">🔍 Single</div>
-    <div class="tab" onclick="switchTab('batch-manual')">👥 Batch Manual</div>
-    <div class="tab" onclick="switchTab('batch-csv')">📁 Batch CSV</div>
-  </div>
+  <div class="grid">
+    <!-- FORM -->
+    <div class="card">
+      <div class="card-title">Applicant Profile</div>
 
-  <!-- ══ PANEL: SINGLE ══ -->
-  <div class="panel active" id="panel-single">
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">Applicant Profile</div>
-        <div class="form-row">
-          <div class="form-group"><label>Education</label>
-            <select id="s_edu"><option value="0">Graduate</option><option value="1">Not Graduate</option></select></div>
-          <div class="form-group"><label>Self Employed</label>
-            <select id="s_emp"><option value="0">No</option><option value="1">Yes</option></select></div>
-          <div class="form-group"><label>Dependents (0–5)</label>
-            <input type="number" id="s_deps" value="2" min="0" max="5"/></div>
-          <div class="form-group"><label>CIBIL Score (300–900)</label>
-            <input type="number" id="s_cibil" value="778" min="300" max="900"/></div>
-          <div class="form-group"><label>Annual Income (₹)</label>
-            <input type="number" id="s_income" value="9600000"/></div>
-          <div class="form-group"><label>Loan Amount (₹)</label>
-            <input type="number" id="s_loan" value="29900000"/></div>
-          <div class="form-group"><label>Loan Term (years)</label>
-            <input type="number" id="s_term" value="12" min="2" max="20"/></div>
-          <div class="form-group"><label>Residential (₹)</label>
-            <input type="number" id="s_res" value="2400000"/></div>
-          <div class="form-group"><label>Commercial (₹)</label>
-            <input type="number" id="s_com" value="17600000"/></div>
-          <div class="form-group"><label>Luxury (₹)</label>
-            <input type="number" id="s_lux" value="22700000"/></div>
-          <div class="form-group full"><label>Bank (₹)</label>
-            <input type="number" id="s_bank" value="8000000"/></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Education</label>
+          <select id="education">
+            <option value="0">Graduate</option>
+            <option value="1">Not Graduate</option>
+          </select>
         </div>
-        <button class="btn btn-primary" id="singleBtn" onclick="predictSingle()">Predict Loan Approval</button>
-        <div id="singleErr"></div>
+        <div class="form-group">
+          <label>Self Employed</label>
+          <select id="self_employed">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-title">Prediction Result</div>
-        <div class="result-empty" id="singleEmpty"><div class="icon">📊</div><div style="font-size:13px;line-height:1.6">Fill the profile and click Predict.</div></div>
-        <div id="singleResult" style="display:none"></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Dependents (0–5)</label>
+          <input type="number" id="no_of_dependents" value="2" min="0" max="5"/>
+        </div>
+        <div class="form-group">
+          <label>CIBIL Score (300–900)</label>
+          <input type="number" id="cibil_score" value="778" min="300" max="900"/>
+        </div>
+        <div class="form-group">
+          <label>Annual Income (₹)</label>
+          <input type="number" id="income_annum" value="9600000"/>
+        </div>
+        <div class="form-group">
+          <label>Loan Amount (₹)</label>
+          <input type="number" id="loan_amount" value="29900000"/>
+        </div>
+        <div class="form-group">
+          <label>Loan Term (years)</label>
+          <input type="number" id="loan_term" value="12" min="2" max="20"/>
+        </div>
+        <div class="form-group">
+          <label>Residential Assets (₹)</label>
+          <input type="number" id="residential_assets_value" value="2400000"/>
+        </div>
+        <div class="form-group">
+          <label>Commercial Assets (₹)</label>
+          <input type="number" id="commercial_assets_value" value="17600000"/>
+        </div>
+        <div class="form-group">
+          <label>Luxury Assets (₹)</label>
+          <input type="number" id="luxury_assets_value" value="22700000"/>
+        </div>
+        <div class="form-group full">
+          <label>Bank Assets (₹)</label>
+          <input type="number" id="bank_asset_value" value="8000000"/>
+        </div>
       </div>
+
+      <button id="predictBtn" onclick="predict()">Predict Loan Approval</button>
+      <div id="errorMsg"></div>
     </div>
-  </div>
 
-  <!-- ══ PANEL: BATCH MANUAL ══ -->
-  <div class="panel" id="panel-batch-manual">
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">Clients List</div>
-        <div class="info-box">Add each client manually. Click <strong>+ Add Client</strong> to add more.<br/>Tip: <strong>CIBIL Score</strong> is the most decisive variable.</div>
-        <div id="clientRows" class="scrollable"></div>
-        <button class="btn-add" onclick="addRow()">+ Add Client</button>
-        <button class="btn btn-primary" id="batchManBtn" onclick="predictBatchManual()">Predict All Clients</button>
-        <div id="batchManErr"></div>
+    <!-- RESULT -->
+    <div class="card" id="resultCard">
+      <div class="card-title">Prediction Result</div>
+      <div class="result-empty" id="emptyState">
+        <div class="icon">📊</div>
+        <div style="font-size:13px;line-height:1.6">Fill in the applicant's financial<br/>profile and click Predict.</div>
       </div>
-      <div class="card">
-        <div class="card-title">Batch Results</div>
-        <div class="result-empty" id="batchManEmpty"><div class="icon">👥</div><div style="font-size:13px;line-height:1.6">Add clients and click<br/>Predict All Clients.</div></div>
-        <div id="batchManResult" style="display:none"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ PANEL: BATCH CSV ══ -->
-  <div class="panel" id="panel-batch-csv">
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">Upload CSV File</div>
-        <div class="info-box">
-          Required columns:<br/>
-          <strong>no_of_dependents, education, self_employed, income_annum, loan_amount, loan_term, cibil_score, residential_assets_value, commercial_assets_value, luxury_assets_value, bank_asset_value</strong>
-        </div>
-        <div class="csv-drop" id="csvDrop" onclick="document.getElementById('csvFileInput').click()">
-          <div class="drop-icon">📁</div>
-          <div class="drop-title">Drop CSV here or click to browse</div>
-          <div class="drop-sub">Accepts .csv files · Any number of rows</div>
-        </div>
-        <input type="file" id="csvFileInput" accept=".csv" onchange="handleCsv(event)"/>
-        <div id="csvInfo" style="display:none" class="csv-info"></div>
-        <button class="btn btn-secondary" onclick="downloadSample()">⬇ Download Sample CSV</button>
-        <button class="btn btn-primary" id="batchCsvBtn" onclick="predictBatchCsv()" disabled>Predict from CSV</button>
-        <div id="batchCsvErr"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Batch Results</div>
-        <div class="result-empty" id="batchCsvEmpty"><div class="icon">📁</div><div style="font-size:13px;line-height:1.6">Upload a CSV file and<br/>click Predict from CSV.</div></div>
-        <div id="batchCsvResult" style="display:none"></div>
-      </div>
+      <div id="resultContent" style="display:none"></div>
     </div>
   </div>
 </div>
 
 <script>
-const API = "https://credit-risk-n0p5.onrender.com";
-let singleHistory = [], csvData = [], lastBatch = [];
+  const API = "https://credit-risk-n0p5.onrender.com";
+  let history = [];
 
-// ── Health check
-fetch(API+"/health").then(r=>{
-  document.getElementById("dot").className=r.ok?"dot online":"dot offline";
-  document.getElementById("statusText").textContent=r.ok?"API Online":"API Offline";
-}).catch(()=>{
-  document.getElementById("dot").className="dot offline";
-  document.getElementById("statusText").textContent="API Offline";
-});
+  // Health check
+  fetch(API + "/health")
+    .then(r => {
+      document.getElementById("dot").className = r.ok ? "dot online" : "dot offline";
+      document.getElementById("statusText").textContent = r.ok ? "API Online" : "API Offline";
+    })
+    .catch(() => {
+      document.getElementById("dot").className = "dot offline";
+      document.getElementById("statusText").textContent = "API Offline";
+    });
 
-// ── Tabs
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['single','batch-manual','batch-csv'][i]===name));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-'+name).classList.add('active');
-}
+  async function predict() {
+    const btn = document.getElementById("predictBtn");
+    const errDiv = document.getElementById("errorMsg");
+    errDiv.innerHTML = "";
+    btn.disabled = true;
+    btn.textContent = "Predicting...";
 
-// ── Helpers
-const gi=(id)=>parseInt(document.getElementById(id)?.value)||0;
-const gf=(id)=>parseFloat(document.getElementById(id)?.value)||0;
-function buildPayload(p){
-  return{no_of_dependents:parseInt(p.deps)||0,education:parseInt(p.edu)||0,self_employed:parseInt(p.emp)||0,
-    income_annum:parseFloat(p.income)||0,loan_amount:parseFloat(p.loan)||0,loan_term:parseInt(p.term)||0,
-    cibil_score:parseInt(p.cibil)||0,residential_assets_value:parseFloat(p.res)||0,
-    commercial_assets_value:parseFloat(p.com)||0,luxury_assets_value:parseFloat(p.lux)||0,bank_asset_value:parseFloat(p.bank)||0};
-}
+    const payload = {
+      no_of_dependents:           parseInt(document.getElementById("no_of_dependents").value),
+      education:                  parseInt(document.getElementById("education").value),
+      self_employed:              parseInt(document.getElementById("self_employed").value),
+      income_annum:               parseFloat(document.getElementById("income_annum").value),
+      loan_amount:                parseFloat(document.getElementById("loan_amount").value),
+      loan_term:                  parseInt(document.getElementById("loan_term").value),
+      cibil_score:                parseInt(document.getElementById("cibil_score").value),
+      residential_assets_value:   parseFloat(document.getElementById("residential_assets_value").value),
+      commercial_assets_value:    parseFloat(document.getElementById("commercial_assets_value").value),
+      luxury_assets_value:        parseFloat(document.getElementById("luxury_assets_value").value),
+      bank_asset_value:           parseFloat(document.getElementById("bank_asset_value").value),
+    };
 
-// ══ SINGLE PREDICT ══════════════════════════
-async function predictSingle(){
-  const btn=document.getElementById("singleBtn"),err=document.getElementById("singleErr");
-  err.innerHTML="";
-  const cibil=gi("s_cibil"),deps=gi("s_deps"),term=gi("s_term");
-  if(cibil<300||cibil>900){err.innerHTML='<div class="error">⚠ CIBIL Score must be 300–900.</div>';return}
-  if(deps<0||deps>5){err.innerHTML='<div class="error">⚠ Dependents must be 0–5.</div>';return}
-  if(term<2||term>20){err.innerHTML='<div class="error">⚠ Loan term must be 2–20 years.</div>';return}
-  btn.disabled=true;btn.textContent="Predicting...";
-  const payload=buildPayload({deps:gi("s_deps"),edu:gi("s_edu"),emp:gi("s_emp"),income:gf("s_income"),loan:gf("s_loan"),term,cibil,res:gf("s_res"),com:gf("s_com"),lux:gf("s_lux"),bank:gf("s_bank")});
-  try{
-    const res=await fetch(API+"/predict",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error("Error "+res.status+" — "+JSON.stringify(e.detail||e))}
-    showSingle(await res.json());
-  }catch(e){err.innerHTML='<div class="error">⚠ '+e.message+'</div>'}
-  finally{btn.disabled=false;btn.textContent="Predict Loan Approval"}
-}
-function showSingle(data){
-  const ok=data.prediction==="Approved";
-  const pa=(data.prob_approved*100).toFixed(1),pr=(data.prob_rejected*100).toFixed(1),cf=(data.probability*100).toFixed(1);
-  singleHistory.push({v:data.prediction,p:parseFloat(pa)});
-  if(singleHistory.length>8)singleHistory.shift();
-  const hh=singleHistory.map((h,i)=>`<div class="h-bar-wrap"><div class="h-bar ${h.v.toLowerCase()}" style="height:${h.p}%"></div><div class="h-label">#${i+1}</div></div>`).join('');
-  document.getElementById("singleEmpty").style.display="none";
-  const rc=document.getElementById("singleResult");
-  rc.style.display="block";rc.className="animate";
-  rc.innerHTML=`<div class="verdict ${ok?'approved':'rejected'}"><div class="verdict-icon">${ok?'✅':'❌'}</div><div class="verdict-text ${ok?'approved':'rejected'}">${data.prediction}</div><div class="verdict-conf">Confidence: ${cf}%</div></div>
-  <div class="gauge"><div class="gauge-title">Approval Probability</div><div class="gauge-track"><div class="gauge-fill" style="width:${pa}%;background:${ok?'linear-gradient(90deg,#00e676,#69f0ae)':'linear-gradient(90deg,#ff1744,#ff6090)'}"></div></div><div class="gauge-labels"><span>0%</span><span style="color:${ok?'#00e676':'#ff1744'}">${pa}%</span><span>100%</span></div></div>
-  <div class="stats-2"><div class="stat"><div class="stat-val green">${pa}%</div><div class="stat-lbl">P(Approved)</div></div><div class="stat"><div class="stat-val red">${pr}%</div><div class="stat-lbl">P(Rejected)</div></div></div>
-  ${singleHistory.length>1?`<div class="history"><div class="history-title">Prediction History</div><div class="history-bars">${hh}</div></div>`:''}`;
-}
+    try {
+      const res = await fetch(API + "/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("API error " + res.status);
+      const data = await res.json();
+      showResult(data);
+    } catch(e) {
+      errDiv.innerHTML = `<div class="error">⚠ ${e.message}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Predict Loan Approval";
+    }
+  }
 
-// ══ BATCH MANUAL ═══════════════════════════
-let cnt=0;
-function addRow(d={}){
-  cnt++;const id=cnt;
-  const div=document.createElement('div');
-  div.className='client-row';div.id='cr-'+id;
-  div.innerHTML=`<div class="client-row-header"><span>CLIENT #${id}</span><button class="btn-remove" onclick="document.getElementById('cr-${id}').remove()">✕ Remove</button></div>
-  <div class="form-row">
-    <div class="form-group"><label>Education</label><select id="m_edu_${id}"><option value="0">Graduate</option><option value="1"${d.education==1?' selected':''}>Not Graduate</option></select></div>
-    <div class="form-group"><label>Self Employed</label><select id="m_emp_${id}"><option value="0">No</option><option value="1"${d.self_employed==1?' selected':''}>Yes</option></select></div>
-    <div class="form-group"><label>Dependents (0–5)</label><input type="number" id="m_deps_${id}" value="${d.no_of_dependents||0}" min="0" max="5"/></div>
-    <div class="form-group"><label>CIBIL Score</label><input type="number" id="m_cibil_${id}" value="${d.cibil_score||700}" min="300" max="900"/></div>
-    <div class="form-group"><label>Annual Income (₹)</label><input type="number" id="m_income_${id}" value="${d.income_annum||5000000}"/></div>
-    <div class="form-group"><label>Loan Amount (₹)</label><input type="number" id="m_loan_${id}" value="${d.loan_amount||10000000}"/></div>
-    <div class="form-group"><label>Loan Term (years)</label><input type="number" id="m_term_${id}" value="${d.loan_term||10}" min="2" max="20"/></div>
-    <div class="form-group"><label>Residential (₹)</label><input type="number" id="m_res_${id}" value="${d.residential_assets_value||2000000}"/></div>
-    <div class="form-group"><label>Commercial (₹)</label><input type="number" id="m_com_${id}" value="${d.commercial_assets_value||5000000}"/></div>
-    <div class="form-group"><label>Luxury (₹)</label><input type="number" id="m_lux_${id}" value="${d.luxury_assets_value||3000000}"/></div>
-    <div class="form-group"><label>Bank (₹)</label><input type="number" id="m_bank_${id}" value="${d.bank_asset_value||1000000}"/></div>
-  </div>`;
-  document.getElementById('clientRows').appendChild(div);
-}
-// Default 2 clients
-addRow({cibil_score:778,income_annum:9600000,loan_amount:29900000,no_of_dependents:2});
-addRow({cibil_score:417,income_annum:4100000,loan_amount:12200000,no_of_dependents:0,education:1,self_employed:1});
+  function showResult(data) {
+    const approved = data.prediction === "Approved";
+    const pct_app  = (data.prob_approved * 100).toFixed(1);
+    const pct_rej  = (data.prob_rejected * 100).toFixed(1);
+    const conf     = (data.probability * 100).toFixed(1);
 
-async function predictBatchManual(){
-  const btn=document.getElementById("batchManBtn"),err=document.getElementById("batchManErr");
-  err.innerHTML="";
-  const rows=[...document.querySelectorAll('.client-row')];
-  if(!rows.length){err.innerHTML='<div class="error">⚠ Add at least one client.</div>';return}
-  const clients=[];let valid=true;
-  rows.forEach(r=>{
-    const id=r.id.replace('cr-','');
-    const p=buildPayload({deps:document.getElementById('m_deps_'+id)?.value,edu:document.getElementById('m_edu_'+id)?.value,emp:document.getElementById('m_emp_'+id)?.value,income:document.getElementById('m_income_'+id)?.value,loan:document.getElementById('m_loan_'+id)?.value,term:document.getElementById('m_term_'+id)?.value,cibil:document.getElementById('m_cibil_'+id)?.value,res:document.getElementById('m_res_'+id)?.value,com:document.getElementById('m_com_'+id)?.value,lux:document.getElementById('m_lux_'+id)?.value,bank:document.getElementById('m_bank_'+id)?.value});
-    if(p.cibil_score<300||p.cibil_score>900){err.innerHTML=`<div class="error">⚠ Client #${id}: CIBIL must be 300–900.</div>`;valid=false;}
-    clients.push(p);
-  });
-  if(!valid)return;
-  btn.disabled=true;btn.textContent="Predicting...";
-  try{
-    const res=await fetch(API+"/predict/batch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({clients:clients})});
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error("Error "+res.status+" — "+JSON.stringify(e.detail||e))}
-    const d=await res.json();showBatch(d.results,'batchManEmpty','batchManResult',d);
-  }catch(e){err.innerHTML='<div class="error">⚠ '+e.message+'</div>'}
-  finally{btn.disabled=false;btn.textContent="Predict All Clients"}
-}
+    // add to history
+    history.push({ verdict: data.prediction, pct: parseFloat(pct_app) });
+    if (history.length > 8) history.shift();
 
-// ══ BATCH CSV ═══════════════════════════════
-function handleCsv(event){
-  const file=event.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      csvData=parseCsv(e.target.result);
-      const info=document.getElementById('csvInfo');
-      info.style.display='block';
-      info.innerHTML=`✅ <strong>${file.name}</strong> — <strong>${csvData.length}</strong> clients detected.`;
-      document.getElementById('batchCsvBtn').disabled=false;
-      document.getElementById('batchCsvErr').innerHTML='';
-    }catch(err){document.getElementById('batchCsvErr').innerHTML='<div class="error">⚠ '+err.message+'</div>'}
-  };
-  reader.readAsText(file);
-}
-function parseCsv(text){
-  const lines=text.trim().split('\n').filter(l=>l.trim());
-  if(lines.length<2)throw new Error("CSV must have a header + at least one data row.");
-  const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
-  const required=['no_of_dependents','education','self_employed','income_annum','loan_amount','loan_term','cibil_score','residential_assets_value','commercial_assets_value','luxury_assets_value','bank_asset_value'];
-  required.forEach(r=>{if(!headers.includes(r))throw new Error("Missing column: "+r)});
-  return lines.slice(1).map(line=>{
-    const v=line.split(',');const o={};
-    headers.forEach((h,j)=>{o[h]=v[j]?.trim()});
-    return{no_of_dependents:parseInt(o.no_of_dependents)||0,education:parseInt(o.education)||0,self_employed:parseInt(o.self_employed)||0,income_annum:parseFloat(o.income_annum)||0,loan_amount:parseFloat(o.loan_amount)||0,loan_term:parseInt(o.loan_term)||0,cibil_score:parseInt(o.cibil_score)||0,residential_assets_value:parseFloat(o.residential_assets_value)||0,commercial_assets_value:parseFloat(o.commercial_assets_value)||0,luxury_assets_value:parseFloat(o.luxury_assets_value)||0,bank_asset_value:parseFloat(o.bank_asset_value)||0};
-  });
-}
-const drop=document.getElementById('csvDrop');
-drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('dragover')});
-drop.addEventListener('dragleave',()=>drop.classList.remove('dragover'));
-drop.addEventListener('drop',e=>{
-  e.preventDefault();drop.classList.remove('dragover');
-  const f=e.dataTransfer.files[0];
-  if(f&&f.name.endsWith('.csv')){const dt=new DataTransfer();dt.items.add(f);document.getElementById('csvFileInput').files=dt.files;handleCsv({target:{files:[f]}});}
-});
-async function predictBatchCsv(){
-  const btn=document.getElementById("batchCsvBtn"),err=document.getElementById("batchCsvErr");
-  err.innerHTML="";
-  if(!csvData.length){err.innerHTML='<div class="error">⚠ Upload a CSV file first.</div>';return}
-  btn.disabled=true;btn.textContent="Predicting...";
-  try{
-    const res=await fetch(API+"/predict/batch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({clients:csvData})});
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error("Error "+res.status+" — "+JSON.stringify(e.detail||e))}
-    const d=await res.json();showBatch(d.results,'batchCsvEmpty','batchCsvResult',d);
-  }catch(e){err.innerHTML='<div class="error">⚠ '+e.message+'</div>'}
-  finally{btn.disabled=false;btn.textContent="Predict from CSV"}
-}
-function downloadSample(){
-  const h="no_of_dependents,education,self_employed,income_annum,loan_amount,loan_term,cibil_score,residential_assets_value,commercial_assets_value,luxury_assets_value,bank_asset_value";
-  const rows=["2,0,0,9600000,29900000,12,778,2400000,17600000,22700000,8000000","0,1,1,4100000,12200000,8,417,2700000,2200000,8800000,3300000","3,0,0,7500000,18000000,10,650,5000000,8000000,12000000,4000000","1,1,0,3200000,8500000,6,720,1800000,3000000,5500000,2000000","4,0,1,6000000,20000000,15,490,3500000,4500000,9000000,1500000"];
-  const blob=new Blob([h+'\n'+rows.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sample_clients.csv';a.click();
-}
+    const histHTML = history.map((h, i) => `
+      <div class="h-bar-wrap">
+        <div class="h-bar ${h.verdict.toLowerCase()}" style="height:${h.pct}%"></div>
+        <div class="h-label">#${i+1}</div>
+      </div>`).join('');
 
-// ══ SHARED BATCH RENDERER ═══════════════════
-function showBatch(results,emptyId,resultId,summary={}){
-  const total=summary.total||results.length,approved=summary.approved||results.filter(r=>r.prediction==="Approved").length,rejected=summary.rejected||(total-approved);
-  lastBatch=results;
-  const rows=results.map((r,i)=>{
-    const ok=r.prediction==="Approved";
-    const pa=(r.prob_approved*100).toFixed(1),pr=(r.prob_rejected*100).toFixed(1),cf=(r.probability*100).toFixed(1);
-    return`<tr><td>#${i+1}</td><td><span class="${ok?'badge-ok':'badge-ko'}">${ok?'✅':'❌'} ${r.prediction}</span></td><td style="color:${ok?'var(--green)':'var(--red)'}">${pa}%</td><td>${pr}%</td><td>${cf}%</td></tr>`;
-  }).join('');
-  document.getElementById(emptyId).style.display='none';
-  const el=document.getElementById(resultId);el.style.display='block';el.className='animate';
-  el.innerHTML=`<div class="batch-summary"><div class="summary-card"><div class="summary-val total">${total}</div><div class="summary-lbl">Total</div></div><div class="summary-card"><div class="summary-val approved">${approved}</div><div class="summary-lbl">Approved ✅</div></div><div class="summary-card"><div class="summary-val rejected">${rejected}</div><div class="summary-lbl">Rejected ❌</div></div></div>
-  <div class="batch-table-wrap"><table><thead><tr><th>#</th><th>Decision</th><th>P(Approved)</th><th>P(Rejected)</th><th>Confidence</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <button class="btn-dl" onclick="dlResults()">⬇ Download Results CSV</button>`;
-}
-function dlResults(){
-  if(!lastBatch.length)return;
-  const h="client,prediction,prob_approved,prob_rejected,confidence";
-  const rows=lastBatch.map((r,i)=>`${i+1},${r.prediction},${(r.prob_approved*100).toFixed(2)},${(r.prob_rejected*100).toFixed(2)},${(r.probability*100).toFixed(2)}`);
-  const blob=new Blob([h+'\n'+rows.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='predictions_results.csv';a.click();
-}
+    document.getElementById("emptyState").style.display = "none";
+    const rc = document.getElementById("resultContent");
+    rc.style.display = "block";
+    rc.className = "animate";
+    rc.innerHTML = `
+      <div class="verdict ${approved ? 'approved' : 'rejected'}">
+        <div class="verdict-icon">${approved ? '✅' : '❌'}</div>
+        <div class="verdict-text ${approved ? 'approved' : 'rejected'}">${data.prediction}</div>
+        <div class="verdict-conf">Confidence: ${conf}%</div>
+      </div>
+
+      <div class="gauge">
+        <div class="gauge-title">Approval Probability</div>
+        <div class="gauge-track">
+          <div class="gauge-fill" style="width:${pct_app}%; background:${approved ? 'linear-gradient(90deg,#00e676,#69f0ae)' : 'linear-gradient(90deg,#ff1744,#ff6090)'}"></div>
+        </div>
+        <div class="gauge-labels"><span>0%</span><span style="color:${approved?'#00e676':'#ff1744'}">${pct_app}%</span><span>100%</span></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-val green">${pct_app}%</div>
+          <div class="stat-lbl">P(Approved)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val red">${pct_rej}%</div>
+          <div class="stat-lbl">P(Rejected)</div>
+        </div>
+      </div>
+
+      ${history.length > 1 ? `
+      <div class="history">
+        <div class="history-title">Prediction History</div>
+        <div class="history-bars">${histHTML}</div>
+      </div>` : ''}
+    `;
+  }
 </script>
 </body>
 </html>

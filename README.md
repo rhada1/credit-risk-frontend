@@ -1,4 +1,4 @@
-# 🏦 Credit Risk Prediction — Frontend
+#  Credit Risk Prediction — Frontend
 
 Interactive web interface for the Credit Risk Prediction API.  
 Built with vanilla JavaScript and deployed on GitHub Pages.
@@ -9,27 +9,27 @@ Built with vanilla JavaScript and deployed on GitHub Pages.
 
 ---
 
-## 📋 Description
+##  Description
 
 This frontend provides a clean and intuitive interface to interact with the Credit Risk Prediction API.  
 Fill in an applicant's financial profile and instantly get an AI-powered loan approval prediction.
 
 ---
 
-## ✨ Features
+##  Features
 
 | Feature | Description |
 |---|---|
-| 📝 Complete form | All 11 financial input fields with default values |
-| ✅ Visual verdict | Approved / Rejected with color coding |
-| 📊 Probability gauge | Visual confidence bar |
-| 📈 History chart | Tracks all predictions in the session |
-| 🟢 API status | Real-time online / offline indicator |
-| 📱 Responsive | Works on desktop and mobile |
+|  Complete form | All 11 financial input fields with default values |
+|  Visual verdict | Approved / Rejected with color coding |
+|  Probability gauge | Visual confidence bar |
+|  History chart | Tracks all predictions in the session |
+|  API status | Real-time online / offline indicator |
+|  Responsive | Works on desktop and mobile |
 
 ---
 
-## 🗂️ Project Structure
+##  Project Structure
 
 ```
 credit-risk-frontend/
@@ -39,7 +39,7 @@ credit-risk-frontend/
 
 ---
 
-## 🚀 Run Locally
+##  Run Locally
 
 No installation needed — just open in your browser:
 
@@ -55,7 +55,7 @@ open index.html         # Mac/Linux
 
 ---
 
-## 🌐 Deployment — GitHub Pages
+##  Deployment — GitHub Pages
 
 Hosted automatically via GitHub Pages.
 
@@ -68,7 +68,7 @@ Hosted automatically via GitHub Pages.
 
 ---
 
-## 🔧 Tech Stack
+##  Tech Stack
 
 | Technology | Usage |
 |---|---|
@@ -78,7 +78,7 @@ Hosted automatically via GitHub Pages.
 
 ---
 
-## 🔗 Related Repository
+##  Related Repository
 
 | Repo | Description | Link |
 |---|---|---|
@@ -87,7 +87,7 @@ Hosted automatically via GitHub Pages.
 
 ---
 
-## 👤 Author
+##  Author
 
 **HARRAG Rhada**
 - GitHub: [@rhada1](https://github.com/rhada1)

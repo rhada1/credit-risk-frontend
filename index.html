@@ -334,9 +334,9 @@ async function predictBatchManual(){
   if(!valid)return;
   btn.disabled=true;btn.textContent="Predicting...";
   try{
-    const res=await fetch(API+"/predict/batch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(clients)});
+    const res=await fetch(API+"/predict/batch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({clients:clients})});
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error("Error "+res.status+" — "+JSON.stringify(e.detail||e))}
-    showBatch(await res.json(),'batchManEmpty','batchManResult');
+    const d=await res.json();showBatch(d.results,'batchManEmpty','batchManResult',d);
   }catch(e){err.innerHTML='<div class="error">⚠ '+e.message+'</div>'}
   finally{btn.disabled=false;btn.textContent="Predict All Clients"}
 }
@@ -383,9 +383,9 @@ async function predictBatchCsv(){
   if(!csvData.length){err.innerHTML='<div class="error">⚠ Upload a CSV file first.</div>';return}
   btn.disabled=true;btn.textContent="Predicting...";
   try{
-    const res=await fetch(API+"/predict/batch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(csvData)});
+    const res=await fetch(API+"/predict/batch",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({clients:csvData})});
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error("Error "+res.status+" — "+JSON.stringify(e.detail||e))}
-    showBatch(await res.json(),'batchCsvEmpty','batchCsvResult');
+    const d=await res.json();showBatch(d.results,'batchCsvEmpty','batchCsvResult',d);
   }catch(e){err.innerHTML='<div class="error">⚠ '+e.message+'</div>'}
   finally{btn.disabled=false;btn.textContent="Predict from CSV"}
 }
@@ -397,8 +397,8 @@ function downloadSample(){
 }
 
 // ══ SHARED BATCH RENDERER ═══════════════════
-function showBatch(results,emptyId,resultId){
-  const total=results.length,approved=results.filter(r=>r.prediction==="Approved").length,rejected=total-approved;
+function showBatch(results,emptyId,resultId,summary={}){
+  const total=summary.total||results.length,approved=summary.approved||results.filter(r=>r.prediction==="Approved").length,rejected=summary.rejected||(total-approved);
   lastBatch=results;
   const rows=results.map((r,i)=>{
     const ok=r.prediction==="Approved";

@@ -93,4 +93,4 @@ Hosted automatically via GitHub Pages.
 - GitHub: [@rhada1](https://github.com/rhada1)
 - LinkedIn: [Rhada Harrag](https://www.linkedin.com/in/rhada-harrag-991634160/)
 
-Project developed as part of a Machine Learning course — 2025
+Project developed as part of a Machine Learning course — 2026
